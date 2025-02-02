@@ -1,9 +1,9 @@
-import  jwt  from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 // bankUser athentication middleware
 const bankUserAuth = (req, res, next) => {
   try {
-    const s8token = req.headers.authorization?.split(' ')[1];
+    const s8token = req.headers.authorization?.split(" ")[1];
     if (!s8token) {
       res.json({ success: false, message: "Not authorized, Login again" });
     }

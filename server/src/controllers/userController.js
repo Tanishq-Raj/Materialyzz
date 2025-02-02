@@ -2,7 +2,7 @@ import validator from "validator";
 import User from "../models/userModel.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { sendToken } from "../utils/sendToken.js";
-import passport from 'passport';
+import passport from "passport";
 import propertyModel from "../models/PropertiesModel.js";
 
 // User Registration
@@ -90,7 +90,6 @@ export const userRegister = async (req, res) => {
       email,
       res
     );
-
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -239,7 +238,7 @@ export const verifyOTP = async function (req, res) {
     user.verified = true;
     user.verificationCodeExpire = null;
     user.verificationCode = null;
-    await user.save()
+    await user.save();
 
     sendToken(user, "Account Verified", res);
   } catch (error) {
@@ -313,13 +312,13 @@ export const googleAuthCallback = (req, res) => {
 };
 
 // Get all the properties
-export const getProperties = async (req, res) =>{
+export const getProperties = async (req, res) => {
   try {
-    const properties = await propertyModel.find({})
+    const properties = await propertyModel.find({});
 
-    res.json({success: true, properties})
+    res.json({ success: true, properties });
   } catch (error) {
-    console.log(error)
-    res.json({success: false, messae: error.message})
+    console.log(error);
+    res.json({ success: false, messae: error.message });
   }
-}
+};

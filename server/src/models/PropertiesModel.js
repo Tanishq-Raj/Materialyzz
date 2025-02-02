@@ -12,6 +12,11 @@ const propertySchema = new Schema(
     //   required: true,
     //   trim: true,
     // },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId, // Store User's _id
+      ref: "User", // Reference the User model
+      required: true,
+    },
     price: {
       type: Number,
       required: true,
@@ -39,6 +44,7 @@ const propertySchema = new Schema(
     image: [
       {
         url: String,
+        public_id: String,
         fileType: String,
       },
     ],
@@ -87,6 +93,7 @@ const propertySchema = new Schema(
       trim: true,
     },
     // addedby: userid //////////////////////////////////////////////////////////////////////////
+    // active //******************************************* */
   },
   { timestamps: true }
 );

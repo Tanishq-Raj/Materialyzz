@@ -11,8 +11,12 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const { email, given_name: name, family_name: lastName } = profile._json;
-        
+        const {
+          email,
+          given_name: name,
+          family_name: lastName,
+        } = profile._json;
+
         let user = await User.findOne({ email, verified: true });
         if (!user) {
           // Create new user if not found

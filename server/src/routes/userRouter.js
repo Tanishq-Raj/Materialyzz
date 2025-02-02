@@ -14,19 +14,7 @@ const userRouter = express.Router();
 userRouter.post("/register", userRegister);
 userRouter.post("/otp-verification", verifyOTP);
 userRouter.post("login", login);
-userRouter.get("/logout",userAuth, logout);
-userRouter.get("/get-properties", userAuth, getProperties)
-userRouter.post("/send-otp", async (req, res) => {
-  const { phone } = req.body;
-
-  try {
-    // Firebase generates an OTP and sends it to the user's phone
-    const session = await auth.createSessionCookie(phone, { expiresIn: 60 * 5 * 1000});
-
-    res.json({ success: true, message: "OTP sent successfully", session });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+userRouter.get("/logout", userAuth, logout);
+userRouter.get("/get-properties", userAuth, getProperties);
 
 export default userRouter;

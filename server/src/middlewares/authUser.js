@@ -1,4 +1,4 @@
-import jwt  from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 // User authentication middleware
 const userAuth = (req, res, next) => {
@@ -21,4 +21,4 @@ const userAuth = (req, res, next) => {
   }
 };
 
-export default userAuth
+export default userAuth;

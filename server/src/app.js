@@ -21,7 +21,7 @@ app.use(cors());
 
 // DB connection
 connectDB();
-connectCloudinary()
+connectCloudinary();
 
 // Initialize passport
 app.use(passport.initialize());
@@ -33,6 +33,5 @@ app.get("/auth/google/callback", googleAuthCallback);
 // api endpoints
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/bank-user", bankUserRouter);
-
 
 export { app };

@@ -44,22 +44,22 @@ const bankUserSchema = new Schema(
       type: String,
       //   required: true,
       trim: true,
-      lowercase: true, 
+      lowercase: true,
       index: true,
     },
     designation: {
       type: String,
       //   required: true,
       trim: true,
-      lowercase: true
+      lowercase: true,
     },
-    userAddress:{
-        type: String,
-    //   required: true,
+    userAddress: {
+      type: String,
+      //   required: true,
     },
-    bankAddress:{
-        type: String,
-    //   required: true,
+    bankAddress: {
+      type: String,
+      //   required: true,
     },
     addedProperties: [
       {
@@ -68,8 +68,8 @@ const bankUserSchema = new Schema(
       },
     ],
     viewCount: {
-      type: Number, 
-      default: 0
+      type: Number,
+      default: 0,
     },
     verified: { type: Boolean, default: false },
     verificationCode: Number,
@@ -118,6 +118,7 @@ bankUserSchema.methods.generateToken = function () {
   });
 };
 
-const bankUser = mongoose.models.bankUser || mongoose.model("bankUser", bankUserSchema);
+const bankUser =
+  mongoose.models.bankUser || mongoose.model("bankUser", bankUserSchema);
 
 export default bankUser;

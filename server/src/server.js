@@ -1,16 +1,13 @@
 import { app } from "./app.js";
-import 'dotenv/config'
+import "dotenv/config";
 
-const port = process.env.PORT
+const port = process.env.PORT;
 
 app.get("/", (req, res) => {
-    res.send("Api is Working")
-})
+  res.send("Api is Working");
+});
 
-app.listen(port, () => console.log("Server Started at ", port)) 
-
-
-
+app.listen(port, () => console.log("Server Started at ", port));
 
 // app.post('/upload', upload.array('files', 5), async (req, res) => {
 //     try {

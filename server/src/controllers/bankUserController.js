@@ -352,14 +352,22 @@ export const addProperties = async function (req, res) {
     }
 
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ success: false ,message: "No files uploaded" });
+      return res
+        .status(400)
+        .json({ success: false, message: "No files uploaded" });
     }
 
-    const uploadedFiles = req.files.map((file) => ({
-      url: file.path,
-      fileType: file.mimetype,
-    }));
-
+    // Upload new files and store public_id
+    const uploadedFiles = await Promise.all(
+      req.files.map(async (file) => {
+        const uploadResponse = await cloudinary.uploader.upload(file.path);
+        return {
+          url: uploadResponse.secure_url,
+          public_id: uploadResponse.public_id,
+          fileType: file.mimetype,
+        };
+      })
+    );
 
     const user = await bankUser.find({ _id: userId });
 
@@ -378,10 +386,178 @@ export const addProperties = async function (req, res) {
       bankName: user.bankName,
     };
 
-    const newProperty = new propertyModel(propertyModel);
+    const newProperty = new propertyModel(propertyData);
     newProperty.save();
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Update the Properties
+export const updateProperties = async function (req, res) {
+  try {
+    const {
+      userId,
+      propertyId,
+      category,
+      auctionDate,
+      auctionTime,
+      areaPerSqFt,
+      price,
+      description,
+      enquiryUrl,
+      nearbyPlaces,
+      mapLocation,
+      address,
+    } = req.body;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized Access, Login Again" });
+    }
+
+    if (!propertyId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Property ID is required." });
+    }
+
+    if (
+      !category ||
+      !auctionDate ||
+      !auctionTime ||
+      !areaPerSqFt ||
+      !price ||
+      !description ||
+      !enquiryUrl ||
+      !nearbyPlaces ||
+      !mapLocation ||
+      !address
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Provide all the fields" });
+    }
+
+    // Get user details
+    const user = await bankUser.findById(userId);
+
+    // Find existing property entry
+    const existingProperty = await propertyModel.findOne({
+      _id: propertyId,
+      bankName: user.bankName,
+    });
+
+    if (existingProperty && existingProperty.image.length > 0) {
+      // Delete old images using public_id
+      await Promise.all(
+        existingProperty.image.map((img) =>
+          cloudinary.uploader.destroy(img.public_id)
+        )
+      );
+    }
+
+    // Upload new files and store public_id
+    const uploadedFiles = await Promise.all(
+      req.files.map(async (file) => {
+        const uploadResponse = await cloudinary.uploader.upload(file.path);
+        return {
+          url: uploadResponse.secure_url,
+          public_id: uploadResponse.public_id, // Store new public ID
+          fileType: file.mimetype,
+        };
+      })
+    );
+
+    const updatedPropertyData = {
+      category,
+      auctionDate,
+      auctionTime,
+      areaPerSqFt,
+      price,
+      description,
+      enquiryUrl,
+      nearbyPlaces,
+      mapLocation,
+      image: uploadedFiles,
+      address,
+      bankName: user.bankName,
+    };
+
+    // Update property record
+    const updatedProperty = await propertyModel.findOneAndUpdate(
+      { _id: propertyId, bankName: user.bankName },
+      updatedPropertyData
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Property updated successfully",
+      data: updatedProperty,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const deleteProperty = async function (req, res) {
+  try {
+    const { userId, propertyId } = req.body;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized Access, Login Again" });
+    }
+
+    if (!propertyId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Property ID is required." });
+    }
+
+    // Get user details
+    const user = await bankUser.findById(userId);
+
+    // Find existing property entry
+    const existingProperty = await propertyModel.findOne({
+      _id: propertyId,
+      bankName: user.bankName,
+    });
+
+    if (!existingProperty) {
+      return res.status(404).json({
+        success: false,
+        message: "Property not found or unauthorized.",
+      });
+    }
+
+    // Delete images from Cloudinary
+    if (existingProperty.image.length > 0) {
+      await Promise.all(
+        existingProperty.image.map((img) =>
+          cloudinary.uploader.destroy(img.public_id)
+        )
+      );
+    }
+
+    // Delete the property from the database
+    await propertyModel.deleteOne({ _id: propertyId, bankName: user.bankName });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Property deleted successfully." });
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -394,7 +570,7 @@ export const getProperties = async (req, res) => {
   try {
     const { userId } = req.body;
     const user = await bankUser.find({ _id: userId });
-    const properties = await propertyModel.find({ bankName: user.bankName });
+    const properties = await propertyModel.find({ bankName: user.bankName }); // ----------------
 
     res.json({ success: true, properties });
   } catch (error) {
